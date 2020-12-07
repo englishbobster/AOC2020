@@ -28,6 +28,6 @@ end
 exp = Day1.read_expenses()
 
 #First star!!
-IO.puts(Day1.process_expenses(exp))
+Day1.process_expenses(exp) |> IO.puts
 
 #Second star!!
