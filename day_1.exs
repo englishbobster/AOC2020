@@ -45,7 +45,7 @@ defmodule Day1 do
   def sum_total(expenses, summed_expenses) do
     {a, b, c, _} = summed_expenses
                    |> Enum.map(fn se -> sum_total_single(expenses, se) end)
-                   |> Enum.flat_map(fn x -> x end)
+                   |> Enum.flat_map(&Function.identity/1) # is &(&1) better?
                    |> Enum.find(fn {_, _, _, total} -> total == 2020 end)
 
     a * b * c
