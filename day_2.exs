@@ -18,7 +18,7 @@ defmodule Day2 do
     {String.to_integer(min), String.to_integer(max)}
   end
 
-  def check_valid_in_range({{min, max}, ch, pwd}) do
+  def policy_valid_in_range({{min, max}, ch, pwd}) do
     range = min..max
     freq = String.graphemes(pwd)
            |> Enum.filter(fn c -> c == ch end)
@@ -26,7 +26,7 @@ defmodule Day2 do
     freq in range
   end
 
-  def check_valid_single_position({{pos_1, pos_2}, ch, pwd}) do
+  def policy_valid_single_position({{pos_1, pos_2}, ch, pwd}) do
   (String.at(pwd, pos_1 - 1) == ch) != (String.at(pwd, pos_2 - 1) == ch)
   end
 
@@ -41,9 +41,9 @@ end
 policy_list = Day2.read_passwords()
 
 #First star!!
-Day2.check_passwords(policy_list, &Day2.check_valid_in_range/1)
+Day2.check_passwords(policy_list, &Day2.policy_valid_in_range/1)
 |> IO.puts()
 
 #Second star!!
-Day2.check_passwords(policy_list, &Day2.check_valid_single_position/1)
+Day2.check_passwords(policy_list, &Day2.policy_valid_single_position/1)
 |> IO.puts()
