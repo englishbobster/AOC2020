@@ -24,10 +24,9 @@ defmodule Day1 do
     process_expenses(t, current_result)
   end
 
-  def sum_expenses(expenses) do
+  defp sum_expenses(expenses) do
     sum_expenses(expenses, [])
   end
-
   defp sum_expenses([], results) do
     results
   end
@@ -37,13 +36,12 @@ defmodule Day1 do
     results = results ++ result
     sum_expenses(t, results)
   end
-
   defp sum_total_single(expenses, {a, b, total}) do
     expenses
     |> Enum.map(fn val -> {a, b, val, total + val} end)
   end
-  def sum_total(expenses, summed_expenses) do
-    {a, b, c, _} = summed_expenses
+  def sum_total(expenses) do
+    {a, b, c, _} = sum_expenses(expenses)
                    |> Enum.map(fn se -> sum_total_single(expenses, se) end)
                    |> Enum.flat_map(&Function.identity/1) # is &(&1) better?
                    |> Enum.find(fn {_, _, _, total} -> total == 2020 end)
@@ -59,5 +57,5 @@ Day1.process_expenses(exp)
 |> IO.puts
 
 #Second star!!
-initial_sum = Day1.sum_expenses(exp)
-IO.puts(Day1.sum_total(exp, initial_sum))
+Day1.sum_total(exp)
+|> IO.puts
