@@ -15,17 +15,18 @@ defmodule Day2 do
   defp parse_range(str) do
     match_range = ~r/(?<min>\d*)\-(?<max>\d*)/
     %{"max" => max, "min" => min} = Regex.named_captures(match_range, str)
-    String.to_integer(min)..String.to_integer(max)
+    {String.to_integer(min),String.to_integer(max)}
   end
 
-  def check_valid({range, ch, pwd}) do
+  def check_valid_in_range({{min, max}, ch, pwd}) do
+    range = min..max
     freq = String.graphemes(pwd) |> Enum.filter(fn c -> c == ch end) |> Enum.count()
     freq in range
   end
 
   def check_passwords(policy_list) do
     policy_list
-    |> Enum.filter(fn policy -> check_valid(policy) end)
+    |> Enum.filter(fn policy -> check_valid_in_range(policy) end)
     |> Enum.count()
   end
 
