@@ -10,10 +10,19 @@ defmodule Day3 do
   def count_trees(step_x_y) do
     slope_map = load_slope()
     {:ok, slope_service} = Day3.Slope.start_slope_service(slope_map)
-    1..(length(slope_map) - 1) #eeww!...count over lines in the file (normalized to find bottom of slope?)
+    1..length(slope_map)
     |> Enum.map(fn _val -> Day3.Slope.step(slope_service, step_x_y) end)
     |> Enum.filter(fn terrain -> terrain == "#" end)
     |> Enum.count()
+  end
+
+  def count_for_multiple_slopes() do
+    cnt_slope_1_1 = count_trees({1, 1})
+    cnt_slope_3_1 = count_trees({3, 1})
+    cnt_slope_5_1 = count_trees({5, 1})
+    cnt_slope_7_1 = count_trees({7, 1})
+    cnt_slope_1_2 = count_trees({1, 2})
+    cnt_slope_1_1 * cnt_slope_3_1 * cnt_slope_5_1 * cnt_slope_7_1 * cnt_slope_1_2
   end
 
 end
@@ -43,10 +52,13 @@ defmodule Day3.Slope do
 
   defp find_char_at(slope_map, x, y) do
     norm_y = (y - 1)
-    {:ok, line} = slope_map
-                  |> Enum.fetch(norm_y)
-    norm_x = rem((x - 1), String.length(line))
-    String.at(line, norm_x)
+    case Enum.fetch(slope_map, norm_y) do
+      {:ok, line} ->
+        norm_x = rem((x - 1), String.length(line))
+        String.at(line, norm_x)
+      :error ->
+        "." #assume that we stop in snow at the bottom of the slope
+    end
   end
 
 end
@@ -74,8 +86,8 @@ defmodule Day3.SlopeTest do
 
 end
 
-
 #First star!!
-IO.puts(Day3.count_trees({3,1}))
+IO.puts(Day3.count_trees({3, 1}))
 
 #Second star!!
+IO.puts(Day3.count_for_multiple_slopes())
