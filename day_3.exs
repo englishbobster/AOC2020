@@ -62,7 +62,7 @@ defmodule Day3.SlopeTest do
     row2 = "...#.!#"
     row3 = "...$.#."
     {:ok, slope_service} = start_slope_service([row1, row2, row3])
-    %{slope: slope_service, row1: row1, row2: row2, row3: row3}
+    %{slope: slope_service}
   end
 
   test "step down the slope and set the position", %{slope: slope_service} do
