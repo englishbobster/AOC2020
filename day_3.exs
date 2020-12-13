@@ -1,43 +1,44 @@
 defmodule Day3 do
 
   def load_slope() do
-    slope = File.read!("./resources/passwords.txt")
+    slope = File.read!("./resources/slope_map.txt")
     slope
     |> String.trim()
     |> String.split("\n")
   end
+
+  def count_trees(step_x_y) do
+    slope_map = load_slope()
+    {:ok, slope_service} = Day3.Slope.start_slope_service(slope_map)
+    1..(length(slope_map) - 1) #eeww!...count over lines in the file (normalized to find bottom of slope?)
+    |> Enum.map(fn _val -> Day3.Slope.step(slope_service, step_x_y) end)
+    |> Enum.filter(fn terrain -> terrain == "#" end)
+    |> Enum.count()
+  end
+
 end
 
 defmodule Day3.Slope do
   use Agent
 
   def start_slope_service(slope_map) do
-    Agent.start_link(fn -> {{0, 0}, slope_map} end)
+    Agent.start_link(fn -> {{1, 1}, slope_map} end)
   end
 
   def step(slope_service, {x, y}) do
-    Agent.get_and_update(
+    Agent.update(
       slope_service,
-      fn {{x_current, y_current}, slope} ->
-        {{{x_current, y_current}, slope}, {{x_current + x, y_current + y}, slope}}
-      end
+      fn {{x_current, y_current}, slope} -> {{x_current + x, y_current + y}, slope} end
     )
     get_at_current_position(slope_service)
   end
 
-  def current_position(slop_service) do
-    Agent.get(slop_service, fn {{x, y}, slope_map} -> {x,y} end )
+  def current_position(slope_service) do
+    Agent.get(slope_service, fn {{x, y}, _slope_map} -> {x, y} end)
   end
 
-  def get_at(slope_service, {x, y}) do
-    Agent.get(slope_service, fn {_, slope_map} -> find_char_at(slope_map, x, y) end)
-  end
   def get_at_current_position(slope_service) do
     Agent.get(slope_service, fn {{x, y}, slope_map} -> find_char_at(slope_map, x, y) end)
-  end
-
-  def get_current_position(slope_service) do
-    Agent.get(slope_service, fn {position, _} -> position end)
   end
 
   defp find_char_at(slope_map, x, y) do
@@ -57,43 +58,24 @@ defmodule Day3.SlopeTest do
   use ExUnit.Case, async: true
 
   setup do
-    row1 = "#...$.."
-    row2 = "..!#..#"
-    {:ok, slope_service} = start_slope_service([row1, row2])
-    %{slope: slope_service, row1: row1, row2: row2}
-  end
-
-  test "get the current position", %{slope: slope_service} do
-    assert get_current_position(slope_service) == {0, 0}
-  end
-
-  test "slope service query should return a tree", %{slope: slope_service} do
-    assert get_at(slope_service, {5, 1}) == "$"
+    row1 = "#...#.."
+    row2 = "...#.!#"
+    row3 = "...$.#."
+    {:ok, slope_service} = start_slope_service([row1, row2, row3])
+    %{slope: slope_service, row1: row1, row2: row2, row3: row3}
   end
 
   test "step down the slope and set the position", %{slope: slope_service} do
-    assert step(slope_service, {5, 1}) == "$"
-    assert current_position(slope_service) == {5,1}
     assert step(slope_service, {5, 1}) == "!"
-    assert current_position(slope_service) == {10,2}
-  end
-
-  test "slope service query should return a tree when wrap around", %{slope: slope_service, row1: row1} do
-    row_wrapped_length = 5 + String.length(row1)
-    assert get_at(slope_service, {row_wrapped_length, 1}) == "$"
-  end
-
-  test "slope service query should return no tree", %{slope: slope_service} do
-    assert get_at(slope_service, {6, 1}) == "."
-  end
-
-  test "reached the bottom", %{} do
-    assert true == true
+    assert current_position(slope_service) == {6, 2}
+    assert step(slope_service, {5, 1}) == "$"
+    assert current_position(slope_service) == {11, 3}
   end
 
 end
 
 
 #First star!!
+IO.puts(Day3.count_trees({3,1}))
 
 #Second star!!
