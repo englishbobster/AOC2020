@@ -16,13 +16,9 @@ defmodule Day3 do
     |> Enum.count()
   end
 
-  def count_for_multiple_slopes() do
-    cnt_slope_1_1 = count_trees({1, 1})
-    cnt_slope_3_1 = count_trees({3, 1})
-    cnt_slope_5_1 = count_trees({5, 1})
-    cnt_slope_7_1 = count_trees({7, 1})
-    cnt_slope_1_2 = count_trees({1, 2})
-    cnt_slope_1_1 * cnt_slope_3_1 * cnt_slope_5_1 * cnt_slope_7_1 * cnt_slope_1_2
+  def count_for_multiple_slopes(list_of_slopes) do
+    list_of_slopes |> Enum.map(fn slope -> count_trees(slope) end)
+    |> Enum.reduce(1, fn cnt, acc -> acc * cnt end)
   end
 
 end
@@ -90,4 +86,4 @@ end
 IO.puts(Day3.count_trees({3, 1}))
 
 #Second star!!
-IO.puts(Day3.count_for_multiple_slopes())
+IO.puts(Day3.count_for_multiple_slopes([{1, 1},{3, 1},{5, 1},{7, 1},{1, 2}] ))
