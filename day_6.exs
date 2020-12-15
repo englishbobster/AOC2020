@@ -8,7 +8,7 @@ defmodule Day6 do
     |> Enum.map(fn group -> String.split(group, "\n") end)
   end
 
-  def sum_counts_for_groups() do
+  def sum_counts_for_groups_any_answer() do
     load_group_questions()
     |> Enum.map(fn group_list -> Enum.join(group_list) end)
     |> Enum.map(fn str -> String.graphemes(str) end)
@@ -31,8 +31,7 @@ defmodule Day6.Questions do
 end
 
 #First star!!
-Day6.sum_counts_for_groups()
-IO.puts(Day6.sum_counts_for_groups())
+IO.puts(Day6.sum_counts_for_groups_any_answer())
 
 #Second star!!
 IO.puts("second star goes here")
