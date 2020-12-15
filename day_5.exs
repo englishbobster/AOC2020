@@ -32,6 +32,27 @@ defmodule Day5 do
     end
   end
 
+  def calculate_boarding_pass_id(boarding_pass_str) do
+    row = boarding_pass_str |> String.slice(0..6) |> find_row()
+    column = boarding_pass_str |> String.slice(7..9) |> find_column()
+    row * 8 + column
+  end
+
+  def find_highest_boarding_pass_id() do
+    load_boarding_passes()
+    |> Enum.map(fn pass -> calculate_boarding_pass_id(pass) end)
+    |> Enum.max
+  end
+
+  def find_missing_boarding_pass_id() do
+    ordered_ids = load_boarding_passes()
+    |> Enum.map(fn pass -> calculate_boarding_pass_id(pass) end)
+    |> Enum.sort
+
+    List.first(ordered_ids)..List.last(ordered_ids)
+    |> Enum.find(fn id -> !Enum.member?(ordered_ids, id) end)
+  end
+
 end
 
 # with tests
@@ -69,7 +90,8 @@ defmodule Day5.BoardingPassTest do
 
 end
 
-
 #First star!!
+IO.puts(Day5.find_highest_boarding_pass_id())
 
 #Second star!!
+IO.puts(Day5.find_missing_boarding_pass_id())
