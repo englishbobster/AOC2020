@@ -54,6 +54,11 @@ defmodule Day5.BoardingPassTest do
     assert Day7.parse_bag_rule("shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.")
            == [:shiny_gold, {:dark_olive, 1}, {:vibrant_plum, 2}]
   end
+
+  test "parse single bag rule" do
+    assert Day7.parse_bag_rule("faded blue bags contain no other bags.")
+           == [:faded_blue]
+  end
 end
 
 #First star!!
