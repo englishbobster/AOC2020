@@ -31,7 +31,6 @@ defmodule Day7 do
           |> String.to_atom()
     {bag, String.to_integer(nr)}
   end
-
   defp bag_colour_as_atom(bag_desc) do
     bag_desc
     |> String.split(" ")
