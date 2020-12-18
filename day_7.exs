@@ -16,9 +16,16 @@ defmodule Day7 do
                   |> bag_colour_as_atom()
     List.first(tail)
     |> String.trim()
-    |> String.split(", ")
-    |> Enum.map(fn str -> process_secondary_bag_string(str) end)
+    |> process_secondary_bag()
     |> List.insert_at(0, primary_bag)
+  end
+  defp process_secondary_bag(str) do
+    case String.contains?(str, ",") do
+      true ->
+        String.split(str, ", ")
+        |> Enum.map(fn str -> process_secondary_bag_string(str) end)
+      false -> []
+    end
   end
   defp process_secondary_bag_string(bag_str) do
     String.split(bag_str, " ")
@@ -36,6 +43,11 @@ defmodule Day7 do
     |> String.split(" ")
     |> Enum.join("_")
     |> String.to_atom()
+  end
+
+  def collect_bag_rules() do
+    load_bag_rules()
+    |> Enum.map(fn rule -> parse_bag_rule(rule) end)
   end
 
 end
@@ -62,5 +74,6 @@ defmodule Day5.BoardingPassTest do
 end
 
 #First star!!
+IO.inspect(Day7.collect_bag_rules(), [{:pretty, true}, {:limit, :infinity}])
 
 #Second star!!
