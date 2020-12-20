@@ -42,8 +42,23 @@ defmodule Day7 do
     |> Enum.map(fn rule -> parse_bag_rule(rule) end)
   end
 
+  def find_bag_colours_for(rules, bag) do
+    find_all_bag_colours(rules, [bag], [])
+    |> Enum.uniq()
+  end
+  def find_all_bag_colours(_, [], results) do
+    results
+  end
+  def find_all_bag_colours(rules, bags, results) do
+    new_bags = bags
+               |> Enum.flat_map(fn bag -> find_parent_bags(rules, bag) end)
+    find_all_bag_colours(rules, new_bags, results ++ new_bags)
+  end
 
-
+  def find_parent_bags(rules, child_bag) do
+    rules
+    |> Enum.flat_map(fn rule -> find_parent_bag(rule, child_bag) end)
+  end
   def find_parent_bag([parent | children], child_bag) do
     case Enum.reduce(children, false, fn child, acc -> acc || contains_child(child, child_bag) end) do
       true -> [parent]
@@ -104,9 +119,29 @@ defmodule Day5.BoardingPassTest do
     assert Day7.parse_bag_rule("faded blue bags contain no other bags.")
            == [:faded_blue]
   end
+
+  test "try the finding the bag colours for the given example" do
+    parsed_rule_strings = [
+      "light red bags contain 1 bright white bag, 2 muted yellow bags.",
+      "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
+      "bright white bags contain 1 shiny gold bag.",
+      "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
+      "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
+      "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
+      "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
+      "faded blue bags contain no other bags.",
+      "dotted black bags contain no other bags."
+    ]
+    rules = parsed_rule_strings |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+
+    assert Day7.find_bag_colours_for(rules, :shiny_gold) == [:bright_white, :muted_yellow, :light_red, :dark_orange]
+  end
+
 end
 
+rules = Day7.collect_bag_rules()
 #First star!!
-IO.inspect(Day7.collect_bag_rules(), [{:pretty, true}, {:limit, :infinity}, {:width, 150}])
+list_of_all_parents = Day7.find_bag_colours_for(rules, :shiny_gold)
+IO.puts(Enum.count(list_of_all_parents))
 
 #Second star!!
