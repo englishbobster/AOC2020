@@ -1,3 +1,5 @@
+#! /usr/bin/elixir
+
 defmodule Day1 do
   def read_expenses() do
     contents = File.read!("./resources/expense_report.txt")

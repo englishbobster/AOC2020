@@ -1,3 +1,5 @@
+#! /usr/bin/elixir
+
 defmodule Day7 do
 
   def load_bag_rules() do
@@ -50,12 +52,60 @@ defmodule Day7 do
     |> Enum.map(fn rule -> parse_bag_rule(rule) end)
   end
 
+  def search_bag_tree(rules, bag) do
+    search_bag_tree(rules, [bag], [])
+  end
+  def search_bag_tree(_, [], result) do
+    result
+  end
+  def search_bag_tree(rules, bags, result) do
+    new_bags = bags |> Enum.map(fn bag -> find_parent_bags(rules, bag) end)
+    |> Enum.flat_map(fn x -> x end)
+    search_bag_tree(rules, new_bags, result ++ new_bags)
+  end
+  def find_parent_bags(rules, bag_description) do
+    IO.inspect(bag_description)
+    rules
+    |> Enum.map(fn rule -> get_parent_bag(rule, bag_description) end)
+  end
+  def get_parent_bag(rule, bag_desc) do
+    rule
+    |> Enum.find_value(
+         fn bag -> case bag do
+                     {colour, _} -> if colour == bag_desc, do: List.first(rule)
+                     _ -> nil
+                   end
+         end
+       )
+  end
+
+  def bag_colours() do
+    collect_bag_rules()
+    |> search_bag_tree(:shiny_gold)
+  end
+
 end
 
 # with tests
 ExUnit.start()
 defmodule Day5.BoardingPassTest do
   use ExUnit.Case
+
+  test "from parsed rule, return parent to given bag description" do
+    assert Day7.get_parent_bag(
+             [:dull_turquoise, {:striped_magenta, 4}, {:dull_gray, 2}, {:shiny_indigo, 3}],
+             :dull_gray
+           )
+           == :dull_turquoise
+  end
+
+  test "from parsed rule, return nil if no bag description" do
+    assert Day7.get_parent_bag(
+             [:dull_turquoise, {:striped_magenta, 4}, {:dull_gray, 2}, {:shiny_indigo, 3}],
+             :I_AM_NOT_IN_THE_RULE
+           )
+           == nil
+  end
 
   test "parse a single rule" do
     assert Day7.parse_bag_rule("light red bags contain 1 bright white bag, 2 muted yellow bags, 5 drab coral bags.")
@@ -74,6 +124,6 @@ defmodule Day5.BoardingPassTest do
 end
 
 #First star!!
-IO.inspect(Day7.collect_bag_rules(), [{:pretty, true}, {:limit, :infinity}])
+IO.inspect(Day7.find_parent_bags(Day7.collect_bag_rules(), :shiny_gold), [{:pretty, true}, {:limit, :infinity}])
 
 #Second star!!

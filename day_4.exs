@@ -1,3 +1,5 @@
+#! /usr/bin/elixir
+
 defmodule Day4 do
   #  @optional_keys [:cid]
   @allowed_eye_colours [:amb, :blu, :brn, :gry, :grn, :hzl, :oth]

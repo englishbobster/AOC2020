@@ -1,3 +1,5 @@
+#! /usr/bin/elixir
+
 defmodule Day2 do
   def read_passwords() do
     contents = File.read!("./resources/passwords.txt")

@@ -1,3 +1,5 @@
+#! /usr/bin/elixir
+
 defmodule Day3 do
 
   def load_slope() do

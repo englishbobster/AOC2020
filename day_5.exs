@@ -1,3 +1,5 @@
+#! /usr/bin/elixir
+
 defmodule Day5 do
   use Bitwise
 

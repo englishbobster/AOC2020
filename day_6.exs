@@ -1,3 +1,5 @@
+#! /usr/bin/elixir
+
 defmodule Day6 do
 
   def load_group_questions() do
