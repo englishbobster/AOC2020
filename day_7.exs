@@ -9,40 +9,30 @@ defmodule Day7 do
     |> String.split("\n")
   end
 
+  '''
+  should parse a bag rule of type:
+    shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags. => [:shiny_gold, {:dark_olive, 1}, {:vibrant_plum, 2}]
+    bright white bags contain 1 shiny gold bag. => [:bright_white, {:shiny_gold, 1}]
+    faded blue bags contain no other bags. => [:faded_blue]
+  '''
   def parse_bag_rule(rule_str) do
-    [head | tail] = rule_str
-                    |> String.split("bags contain")
-
-    primary_bag = head
-                  |> String.trim()
-                  |> bag_colour_as_atom()
-    List.first(tail)
-    |> String.trim()
-    |> process_secondary_bag()
-    |> List.insert_at(0, primary_bag)
+    rule_str
+    |> String.split([" bags contain ", " bag, ", " bags.", " bags, ", " bag.", "no other bags."], [trim: true])
+    |> Enum.map(fn bag_str -> process_bag_string(bag_str) end)
   end
-  defp process_secondary_bag(str) do
-    case String.contains?(str, ",") do
-      true ->
-        String.split(str, ", ")
-        |> Enum.map(fn str -> process_secondary_bag_string(str) end)
-      false -> []
+  defp process_bag_string(bag_str) do
+    split = String.split(bag_str, " ")
+    case length(split) do
+      2 -> description_as_atom(split)
+      3 -> bag_tuple(split)
+      _ -> {}
     end
   end
-  defp process_secondary_bag_string(bag_str) do
-    String.split(bag_str, " ")
-    |> Enum.take(3)
-    |> bag_tuple()
-  end
   defp bag_tuple([nr, desc, colour]) do
-    bag = [desc, colour]
-          |> Enum.join("_")
-          |> String.to_atom()
-    {bag, String.to_integer(nr)}
+    {description_as_atom([desc, colour]), String.to_integer(nr)}
   end
-  defp bag_colour_as_atom(bag_desc) do
+  defp description_as_atom(bag_desc) do
     bag_desc
-    |> String.split(" ")
     |> Enum.join("_")
     |> String.to_atom()
   end
@@ -52,36 +42,16 @@ defmodule Day7 do
     |> Enum.map(fn rule -> parse_bag_rule(rule) end)
   end
 
-  def search_bag_tree(rules, bag) do
-    search_bag_tree(rules, [bag], [])
-  end
-  def search_bag_tree(_, [], result) do
-    result
-  end
-  def search_bag_tree(rules, bags, result) do
-    new_bags = bags |> Enum.map(fn bag -> find_parent_bags(rules, bag) end)
-    |> Enum.flat_map(fn x -> x end)
-    search_bag_tree(rules, new_bags, result ++ new_bags)
-  end
-  def find_parent_bags(rules, bag_description) do
-    IO.inspect(bag_description)
-    rules
-    |> Enum.map(fn rule -> get_parent_bag(rule, bag_description) end)
-  end
-  def get_parent_bag(rule, bag_desc) do
-    rule
-    |> Enum.find_value(
-         fn bag -> case bag do
-                     {colour, _} -> if colour == bag_desc, do: List.first(rule)
-                     _ -> nil
-                   end
-         end
-       )
-  end
 
-  def bag_colours() do
-    collect_bag_rules()
-    |> search_bag_tree(:shiny_gold)
+
+  def find_parent_bag([parent | children], child_bag) do
+    case Enum.reduce(children, false, fn child, acc -> acc || contains_child(child, child_bag) end) do
+      true -> [parent]
+      false -> []
+    end
+  end
+  defp contains_child({desc, _}, child_bag) do
+    if desc == child_bag, do: true, else: false
   end
 
 end
@@ -91,20 +61,28 @@ ExUnit.start()
 defmodule Day5.BoardingPassTest do
   use ExUnit.Case
 
-  test "from parsed rule, return parent to given bag description" do
-    assert Day7.get_parent_bag(
-             [:dull_turquoise, {:striped_magenta, 4}, {:dull_gray, 2}, {:shiny_indigo, 3}],
-             :dull_gray
+  test "find the parent bag for a given rule and child" do
+    assert Day7.find_parent_bag(
+             [:wavy_fuchsia, {:shiny_magenta, 3}, {:wavy_red, 4}, {:faded_gold, 4}, {:posh_red, 4}],
+             :faded_gold
            )
-           == :dull_turquoise
+           == [:wavy_fuchsia]
   end
 
-  test "from parsed rule, return nil if no bag description" do
-    assert Day7.get_parent_bag(
-             [:dull_turquoise, {:striped_magenta, 4}, {:dull_gray, 2}, {:shiny_indigo, 3}],
-             :I_AM_NOT_IN_THE_RULE
+  test "return empty list when no child found" do
+    assert Day7.find_parent_bag(
+             [:wavy_fuchsia, {:shiny_magenta, 3}, {:wavy_red, 4}, {:faded_gold, 4}, {:posh_red, 4}],
+             :NO_CHILD
            )
-           == nil
+           == []
+  end
+
+  test "return empty list when only parent present" do
+    assert Day7.find_parent_bag(
+             [:wavy_fuchsia],
+             :NO_CHILD
+           )
+           == []
   end
 
   test "parse a single rule" do
@@ -117,6 +95,11 @@ defmodule Day5.BoardingPassTest do
            == [:shiny_gold, {:dark_olive, 1}, {:vibrant_plum, 2}]
   end
 
+  test "parse a rule with one child bag" do
+    assert Day7.parse_bag_rule("dark lime bags contain 3 muted magenta bags.")
+           == [:dark_lime, {:muted_magenta, 3}]
+  end
+
   test "parse single bag rule" do
     assert Day7.parse_bag_rule("faded blue bags contain no other bags.")
            == [:faded_blue]
@@ -124,6 +107,6 @@ defmodule Day5.BoardingPassTest do
 end
 
 #First star!!
-IO.inspect(Day7.find_parent_bags(Day7.collect_bag_rules(), :shiny_gold), [{:pretty, true}, {:limit, :infinity}])
+IO.inspect(Day7.collect_bag_rules(), [{:pretty, true}, {:limit, :infinity}, {:width, 150}])
 
 #Second star!!
