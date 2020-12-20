@@ -73,7 +73,7 @@ end
 
 # with tests
 ExUnit.start()
-defmodule Day5.BoardingPassTest do
+defmodule Day5.BagRuleTest do
   use ExUnit.Case
 
   test "find the parent bag for a given rule and child" do
