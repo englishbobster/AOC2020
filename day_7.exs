@@ -69,12 +69,51 @@ defmodule Day7 do
     if desc == child_bag, do: true, else: false
   end
 
+  def get_children_to_parent_bags(rules, parent_bag) do
+    get_children_to_parent_bags(rules, [parent_bag], [])
+  end
+  def get_children_to_parent_bags(_, [], results) do
+    results
+  end
+  def get_children_to_parent_bags(rules, parent_bag_list, results) do
+    children = parent_bag_list
+               |> Enum.flat_map(fn bag -> get_children_to_parent_bag(rules, bag) end)
+    get_children_to_parent_bags(rules, Keyword.keys(children), results ++ children)
+  end
+  def get_children_to_parent_bag(rules, parent_bag) do
+    [_ | children] = find_parent_rule(rules, parent_bag)
+    children
+  end
+  def find_parent_rule(rules, parent_bag) do
+    rules
+    |> Enum.find(fn rule -> List.first(rule) == parent_bag end)
+  end
+
+  def count_bags(current_results, children) do
+
+  end
+
 end
 
 # with tests
 ExUnit.start()
 defmodule Day5.BagRuleTest do
   use ExUnit.Case
+
+  setup do
+    rule_strings = [
+      "light red bags contain 1 bright white bag, 2 muted yellow bags.",
+      "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
+      "bright white bags contain 1 shiny gold bag.",
+      "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
+      "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
+      "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
+      "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
+      "faded blue bags contain no other bags.",
+      "dotted black bags contain no other bags."
+    ]
+    %{rule_strings: rule_strings}
+  end
 
   test "find the parent bag for a given rule and child" do
     assert Day7.find_parent_bag(
@@ -120,21 +159,29 @@ defmodule Day5.BagRuleTest do
            == [:faded_blue]
   end
 
-  test "try the finding the bag colours for the given example" do
-    parsed_rule_strings = [
-      "light red bags contain 1 bright white bag, 2 muted yellow bags.",
-      "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
-      "bright white bags contain 1 shiny gold bag.",
-      "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
-      "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
-      "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
-      "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
-      "faded blue bags contain no other bags.",
-      "dotted black bags contain no other bags."
-    ]
-    rules = parsed_rule_strings |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+  test "try the finding the bag colours for the given example", %{rule_strings: rule_strings} do
+    rules = rule_strings
+            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
 
     assert Day7.find_bag_colours_for(rules, :shiny_gold) == [:bright_white, :muted_yellow, :light_red, :dark_orange]
+  end
+
+  test "find the children to the parent rule", %{rule_strings: rule_strings} do
+    rules = rule_strings
+            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+    assert Day7.get_children_to_parent_bag(rules, :shiny_gold) == [{:dark_olive, 1}, {:vibrant_plum, 2}]
+  end
+
+  test "find the children to the parent rule when no children", %{rule_strings: rule_strings} do
+    rules = rule_strings
+            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+    assert Day7.get_children_to_parent_bag(rules, :dotted_black) == []
+  end
+
+  test "get a structured list of child bags and values", %{rule_strings: rule_strings} do
+    rules = rule_strings
+            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+    assert Day7.get_children_to_parent_bags(rules, :shiny_gold) == 32
   end
 
 end
@@ -145,3 +192,4 @@ list_of_all_parents = Day7.find_bag_colours_for(rules, :shiny_gold)
 IO.puts(Enum.count(list_of_all_parents))
 
 #Second star!!
+#IO.inspect(Day7.get_children_to_parent_bags(rules, :shiny_gold))
