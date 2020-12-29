@@ -81,8 +81,10 @@ defmodule Day7 do
   def count_bags(rules, parent_bags, result) do
     results = parent_bags
               |> Enum.map(fn {desc, val} -> get_children_with_count(rules, {desc, val}) end)
+              |> IO.inspect([{:label, "result"}])
     children = results
-              |> Enum.flat_map(fn {score, children} -> children end)
+               |> Enum.flat_map(fn {_score, children} -> children end)
+               |> IO.inspect([{:label, "children"}])
     count_bags(rules, children, result ++ results)
   end
 
@@ -101,6 +103,7 @@ defmodule Day7 do
     |> Enum.map(fn {desc, val} -> {desc, val * value} end)
   end
 
+  #Make the rules more graph like a list of tuples with node and edges
   def modified_rules(old_rules) do
     old_rules
     |> Enum.map(fn rule -> modify_rule(rule) end)
@@ -141,12 +144,12 @@ defmodule Day5.BagRuleTest do
     %{rule_strings: rule_strings, other_rule_strings: other_rule_strings}
   end
 
-    test "count all the bags with other", %{other_rule_strings: other_rule_strings} do
-      rules = other_rule_strings
-              |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
-              |> Day7.modified_rules()
-      assert Day7.count_bags(rules, :shiny_gold) == 126
-    end
+  test "count all the bags with other", %{other_rule_strings: other_rule_strings} do
+    rules = other_rule_strings
+            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+            |> Day7.modified_rules()
+    assert Day7.count_bags(rules, :shiny_gold) == 126
+  end
 
   test "count all the bags", %{rule_strings: rule_strings} do
     rules = rule_strings
@@ -221,5 +224,6 @@ list_of_all_parents = Day7.find_bag_colours_for(rules, :shiny_gold)
 IO.puts(Enum.count(list_of_all_parents))
 
 #Second star!!
-modified_rules = Day7.collect_bag_rules() |> Day7.modified_rules()
+modified_rules = Day7.collect_bag_rules()
+                 |> Day7.modified_rules()
 IO.inspect(Day7.count_bags(modified_rules, :shiny_gold))
