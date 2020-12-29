@@ -16,6 +16,7 @@ defmodule Day8 do
       "nop" -> {acc, row + 1}
       "acc" -> {acc + String.to_integer(op), row + 1}
       "jmp" -> {acc, row + String.to_integer(op)}
+      _ -> {acc, row}
     end
   end
 
@@ -26,7 +27,6 @@ defmodule Day8 do
     acc
   end
   def run_instructions(flagged_instructions, {acc, row}, _row_state) do
-    IO.inspect(flagged_instructions)
     {inst, flag} = Enum.at(flagged_instructions, row)
     instructions = List.update_at(flagged_instructions, row, fn {inst, _flag} -> {inst, true} end)
     run_instructions(instructions, parse_instruction(inst, {acc, row}), flag)
