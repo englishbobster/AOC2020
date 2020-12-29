@@ -81,11 +81,9 @@ defmodule Day7 do
     # divide the the parent bags into results for processing later...
     results = parent_bags
               |> Enum.map(fn {desc, val} -> get_children_with_count(rules, {desc, val}) end)
-              |> IO.inspect([{:label, "result"}])
     #... and the children for the tail recursion
     children = results
                |> Enum.flat_map(fn {_score, children} -> children end)
-               |> IO.inspect([{:label, "children"}])
     count_bags(rules, children, result ++ results)
   end
 
