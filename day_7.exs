@@ -69,6 +69,47 @@ defmodule Day7 do
     if desc == child_bag, do: true, else: false
   end
 
+  ###### here follows solution for second star
+
+  def count_bags(rules, bag_desc) do
+    count_bags(rules, [{bag_desc, 1}], [])
+  end
+  def count_bags(_rules, [], result) do
+    result
+    |> Enum.reduce(0, fn {val, _}, acc -> acc + val end)
+  end
+  def count_bags(rules, parent_bags, result) do
+    results = parent_bags
+              |> Enum.map(fn {desc, val} -> get_children_with_count(rules, {desc, val}) end)
+    children = results
+              |> Enum.flat_map(fn {score, children} -> children end)
+    count_bags(rules, children, result ++ results)
+  end
+
+  def get_children_with_count(rules, {desc, value}) do
+    [{_parent, children}] = rules
+                            |> Enum.find([], fn [{parent_desc, _value}] -> parent_desc == desc  end)
+    score = children
+            |> Enum.map(fn {_desc, val} -> val * value end)
+            |> Enum.sum()
+
+    {score, update_children_values(children, value)}
+  end
+
+  def update_children_values(children, value) do
+    children
+    |> Enum.map(fn {desc, val} -> {desc, val * value} end)
+  end
+
+  def modified_rules(old_rules) do
+    old_rules
+    |> Enum.map(fn rule -> modify_rule(rule) end)
+  end
+  def modify_rule(old_rule) do
+    [head | tail] = old_rule
+    [{head, tail}]
+  end
+
 end
 
 # with tests
@@ -88,7 +129,37 @@ defmodule Day5.BagRuleTest do
       "faded blue bags contain no other bags.",
       "dotted black bags contain no other bags."
     ]
-    %{rule_strings: rule_strings}
+    other_rule_strings = [
+      "shiny gold bags contain 2 dark red bags.",
+      "dark red bags contain 2 dark orange bags.",
+      "dark orange bags contain 2 dark yellow bags.",
+      "dark yellow bags contain 2 dark green bags.",
+      "dark green bags contain 2 dark blue bags.",
+      "dark blue bags contain 2 dark violet bags.",
+      "dark violet bags contain no other bags."
+    ]
+    %{rule_strings: rule_strings, other_rule_strings: other_rule_strings}
+  end
+
+    test "count all the bags with other", %{other_rule_strings: other_rule_strings} do
+      rules = other_rule_strings
+              |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+              |> Day7.modified_rules()
+      assert Day7.count_bags(rules, :shiny_gold) == 126
+    end
+
+  test "count all the bags", %{rule_strings: rule_strings} do
+    rules = rule_strings
+            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+            |> Day7.modified_rules()
+    assert Day7.count_bags(rules, :shiny_gold) == 32
+  end
+
+  test "given a parent bag, find its children", %{rule_strings: rule_strings} do
+    rules = rule_strings
+            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+            |> Day7.modified_rules()
+    assert Day7.get_children_with_count(rules, {:shiny_gold, 1}) == {3, [{:dark_olive, 1}, {:vibrant_plum, 2}]}
   end
 
   test "find the parent bag for a given rule and child" do
@@ -150,4 +221,5 @@ list_of_all_parents = Day7.find_bag_colours_for(rules, :shiny_gold)
 IO.puts(Enum.count(list_of_all_parents))
 
 #Second star!!
-#IO.inspect(Day7.get_children_to_parent_bags(rules, :shiny_gold))
+modified_rules = Day7.collect_bag_rules() |> Day7.modified_rules()
+IO.inspect(Day7.count_bags(modified_rules, :shiny_gold))
