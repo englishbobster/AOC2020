@@ -70,7 +70,6 @@ defmodule Day7 do
   end
 
   ###### here follows solution for second star
-
   def count_bags(rules, bag_desc) do
     count_bags(rules, [{bag_desc, 1}], [])
   end
@@ -79,23 +78,26 @@ defmodule Day7 do
     |> Enum.reduce(0, fn {val, _}, acc -> acc + val end)
   end
   def count_bags(rules, parent_bags, result) do
+    # divide the the parent bags into results for processing later...
     results = parent_bags
               |> Enum.map(fn {desc, val} -> get_children_with_count(rules, {desc, val}) end)
               |> IO.inspect([{:label, "result"}])
+    #... and the children for the tail recursion
     children = results
                |> Enum.flat_map(fn {_score, children} -> children end)
                |> IO.inspect([{:label, "children"}])
     count_bags(rules, children, result ++ results)
   end
 
-  def get_children_with_count(rules, {desc, value}) do
+  #find the child rules, calculate the nr of bags on this level, and modify the children values with the parent factor
+  def get_children_with_count(rules, {desc, parent_val}) do
     [{_parent, children}] = rules
                             |> Enum.find([], fn [{parent_desc, _value}] -> parent_desc == desc  end)
-    score = children
-            |> Enum.map(fn {_desc, val} -> val * value end)
+    nr_of_bags = children
+            |> Enum.map(fn {_desc, val} -> val * parent_val end)
             |> Enum.sum()
 
-    {score, update_children_values(children, value)}
+    {nr_of_bags, update_children_values(children, parent_val)}
   end
 
   def update_children_values(children, value) do
