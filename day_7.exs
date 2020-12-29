@@ -117,8 +117,9 @@ end
 
 # with tests
 ExUnit.start()
-defmodule Day5.BagRuleTest do
+defmodule Day7.BagRuleTest do
   use ExUnit.Case
+  import Day7
 
   setup do
     rule_strings = [
@@ -146,27 +147,27 @@ defmodule Day5.BagRuleTest do
 
   test "count all the bags with other", %{other_rule_strings: other_rule_strings} do
     rules = other_rule_strings
-            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
-            |> Day7.modified_rules()
-    assert Day7.count_bags(rules, :shiny_gold) == 126
+            |> Enum.map(fn rule -> parse_bag_rule(rule) end)
+            |> modified_rules()
+    assert count_bags(rules, :shiny_gold) == 126
   end
 
   test "count all the bags", %{rule_strings: rule_strings} do
     rules = rule_strings
-            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
-            |> Day7.modified_rules()
-    assert Day7.count_bags(rules, :shiny_gold) == 32
+            |> Enum.map(fn rule -> parse_bag_rule(rule) end)
+            |> modified_rules()
+    assert count_bags(rules, :shiny_gold) == 32
   end
 
   test "given a parent bag, find its children", %{rule_strings: rule_strings} do
     rules = rule_strings
-            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
-            |> Day7.modified_rules()
-    assert Day7.get_children_with_count(rules, {:shiny_gold, 1}) == {3, [{:dark_olive, 1}, {:vibrant_plum, 2}]}
+            |> Enum.map(fn rule -> parse_bag_rule(rule) end)
+            |> modified_rules()
+    assert get_children_with_count(rules, {:shiny_gold, 1}) == {3, [{:dark_olive, 1}, {:vibrant_plum, 2}]}
   end
 
   test "find the parent bag for a given rule and child" do
-    assert Day7.find_parent_bag(
+    assert find_parent_bag(
              [:wavy_fuchsia, {:shiny_magenta, 3}, {:wavy_red, 4}, {:faded_gold, 4}, {:posh_red, 4}],
              :faded_gold
            )
@@ -174,7 +175,7 @@ defmodule Day5.BagRuleTest do
   end
 
   test "return empty list when no child found" do
-    assert Day7.find_parent_bag(
+    assert find_parent_bag(
              [:wavy_fuchsia, {:shiny_magenta, 3}, {:wavy_red, 4}, {:faded_gold, 4}, {:posh_red, 4}],
              :NO_CHILD
            )
@@ -182,7 +183,7 @@ defmodule Day5.BagRuleTest do
   end
 
   test "return empty list when only parent present" do
-    assert Day7.find_parent_bag(
+    assert find_parent_bag(
              [:wavy_fuchsia],
              :NO_CHILD
            )
@@ -190,30 +191,30 @@ defmodule Day5.BagRuleTest do
   end
 
   test "parse a single rule" do
-    assert Day7.parse_bag_rule("light red bags contain 1 bright white bag, 2 muted yellow bags, 5 drab coral bags.")
+    assert parse_bag_rule("light red bags contain 1 bright white bag, 2 muted yellow bags, 5 drab coral bags.")
            == [:light_red, {:bright_white, 1}, {:muted_yellow, 2}, {:drab_coral, 5}]
   end
 
   test "parse another rule" do
-    assert Day7.parse_bag_rule("shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.")
+    assert parse_bag_rule("shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.")
            == [:shiny_gold, {:dark_olive, 1}, {:vibrant_plum, 2}]
   end
 
   test "parse a rule with one child bag" do
-    assert Day7.parse_bag_rule("dark lime bags contain 3 muted magenta bags.")
+    assert parse_bag_rule("dark lime bags contain 3 muted magenta bags.")
            == [:dark_lime, {:muted_magenta, 3}]
   end
 
   test "parse single bag rule" do
-    assert Day7.parse_bag_rule("faded blue bags contain no other bags.")
+    assert parse_bag_rule("faded blue bags contain no other bags.")
            == [:faded_blue]
   end
 
   test "try the finding the bag colours for the given example", %{rule_strings: rule_strings} do
     rules = rule_strings
-            |> Enum.map(fn rule -> Day7.parse_bag_rule(rule) end)
+            |> Enum.map(fn rule -> parse_bag_rule(rule) end)
 
-    assert Day7.find_bag_colours_for(rules, :shiny_gold) == [:bright_white, :muted_yellow, :light_red, :dark_orange]
+    assert find_bag_colours_for(rules, :shiny_gold) == [:bright_white, :muted_yellow, :light_red, :dark_orange]
   end
 
 end
@@ -226,4 +227,4 @@ IO.puts(Enum.count(list_of_all_parents))
 #Second star!!
 modified_rules = Day7.collect_bag_rules()
                  |> Day7.modified_rules()
-IO.inspect(Day7.count_bags(modified_rules, :shiny_gold))
+IO.puts(Day7.count_bags(modified_rules, :shiny_gold))

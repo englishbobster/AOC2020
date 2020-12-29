@@ -61,33 +61,34 @@ end
 ExUnit.start()
 defmodule Day5.BoardingPassTest do
   use ExUnit.Case
+  import Day5
 
   test "find correct row 44" do
-    assert Day5.find_row("FBFBBFF") == 44
+    assert find_row("FBFBBFF") == 44
   end
 
   test "find correct row 70" do
-    assert Day5.find_row("BFFFBBF") == 70
+    assert find_row("BFFFBBF") == 70
   end
 
   test "find correct row 14" do
-    assert Day5.find_row("FFFBBBF") == 14
+    assert find_row("FFFBBBF") == 14
   end
 
   test "find correct row 102" do
-    assert Day5.find_row("BBFFBBF") == 102
+    assert find_row("BBFFBBF") == 102
   end
 
   test "find correct column 5" do
-    assert Day5.find_column("RLR") == 5
+    assert find_column("RLR") == 5
   end
 
   test "find correct column 7" do
-    assert Day5.find_column("RRR") == 7
+    assert find_column("RRR") == 7
   end
 
   test "find correct column 4" do
-    assert Day5.find_column("RLL") == 4
+    assert find_column("RLL") == 4
   end
 
 end

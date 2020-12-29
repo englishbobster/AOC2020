@@ -130,6 +130,7 @@ end
 # with tests
 ExUnit.start()
 defmodule Day4.PassportTest do
+  import Day4
   use ExUnit.Case
 
   test "count valid passports" do
@@ -142,9 +143,9 @@ defmodule Day4.PassportTest do
     pp7 = "hcl:#888785 hgt:164cm byr:2001 iyr:2015 cid:88 pid:545766238 ecl:hzl eyr:2022"
     pp8 = "iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"
     result = [pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8]
-             |> Enum.map(fn entry -> Day4.process_entry(entry) end)
-             |> Enum.filter(fn passport -> Day4.valid_passport_fields?(passport) end)
-             |> Enum.map(fn passport -> Day4.validate_passport_values(passport) end)
+             |> Enum.map(fn entry -> process_entry(entry) end)
+             |> Enum.filter(fn passport -> valid_passport_fields?(passport) end)
+             |> Enum.map(fn passport -> validate_passport_values(passport) end)
              |> Enum.count(fn valid -> valid == true end)
     assert result == 4
 
